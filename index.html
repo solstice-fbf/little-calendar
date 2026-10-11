@@ -250,6 +250,10 @@ header .subtitle {
   font-size: 12px;
   border-radius: 10px;
 }
+
+.day.sunday {
+  background: #f5e5e8;
+}
 </style>
 </head>
 <body>
@@ -388,6 +392,10 @@ function createMonth(year, month) {
     const key = `${year}-${String(month+1).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
     const cell = document.createElement("button");
     cell.className = "day";
+
+    if (new Date(year, month, day).getDay() === 0) {
+      cell.classList.add("sunday");
+    }
 
     if (key === todayKey) cell.classList.add("today");
 
