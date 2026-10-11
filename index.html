@@ -1,0 +1,571 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#fff8f6">
+<title>Little Calendar</title>
+<style>
+:root {
+  --bg: #fff8f6;
+  --paper: #fffdfb;
+  --pink: #f3dce3;
+  --pink-dark: #bd8294;
+  --text: #645157;
+  --muted: #a58e94;
+  --line: #f0e5e6;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+button, input, textarea { font: inherit; }
+button { cursor: pointer; }
+.app {
+  max-width: 760px;
+  margin: auto;
+  padding: 24px 16px 40px;
+}
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.eyebrow {
+  font-size: 11px;
+  letter-spacing: 2px;
+  color: var(--pink-dark);
+}
+h1 { font-size: 27px; margin: 7px 0; }
+.subtitle { font-size: 13px; color: var(--muted); }
+.nav { display: flex; align-items: center; gap: 8px; }
+button {
+  border: 0;
+  border-radius: 12px;
+  padding: 10px 13px;
+  background: var(--pink);
+  color: var(--text);
+}
+.nav button { background: var(--paper); border: 1px solid var(--line); }
+.weekdays, .calendar {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 5px;
+}
+.weekdays { margin-bottom: 6px; }
+.weekdays div {
+  text-align: center;
+  font-size: 10px;
+  color: var(--muted);
+  padding: 8px 0;
+}
+.day {
+  min-width: 0;
+  min-height: 94px;
+  padding: 6px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  text-align: left;
+  overflow: hidden;
+}
+.day.today { border: 1.5px solid var(--pink-dark); }
+.day.empty { background: transparent; border-color: transparent; }
+.day-number { font-size: 12px; display: block; margin-bottom: 7px; }
+.chips { display: grid; gap: 4px; }
+.chip {
+  display: block;
+  padding: 4px 5px;
+  border-radius: 5px;
+  font-size: 10px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.more { font-size: 10px; color: var(--muted); padding-left: 3px; }
+.pink { background: #f7e3e9; }
+.green { background: #e6eddc; }
+.yellow { background: #f9edcf; }
+.purple { background: #eae5f7; }
+.blue { background: #e1ebf7; }
+.note-area { margin-top: 24px; }
+.note-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+h2 { font-size: 18px; margin: 0 0 12px; }
+.notes { display: grid; gap: 9px; }
+.note {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  padding: 13px;
+}
+.note-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.note-title { font-weight: 600; font-size: 14px; }
+.note-content {
+  font-size: 13px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  margin-top: 8px;
+}
+.actions { display: flex; gap: 6px; }
+.actions button { padding: 6px 9px; font-size: 12px; }
+.secondary { background: #f4eeee; }
+.empty-message { color: var(--muted); font-size: 13px; padding: 14px 0; }
+footer { margin-top: 28px; text-align: center; color: var(--muted); font-size: 11px; }
+dialog {
+  width: min(92%, 440px);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 22px;
+  color: var(--text);
+  background: var(--paper);
+}
+dialog::backdrop { background: #45343a66; }
+dialog h2 { margin-bottom: 18px; }
+label { display: block; font-size: 12px; margin: 14px 0 6px; }
+input, textarea {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 11px;
+  background: #fffaf9;
+  color: var(--text);
+  outline-color: var(--pink-dark);
+}
+textarea { min-height: 150px; resize: vertical; line-height: 1.6; }
+.form-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 18px; }
+@media (max-width: 480px) {
+  .app { padding: 20px 9px 32px; }
+  h1 { font-size: 23px; }
+  .subtitle { font-size: 11px; }
+  .day { min-height: 76px; padding: 4px; border-radius: 7px; }
+  .weekdays, .calendar { gap: 3px; }
+  .chip { font-size: 9px; padding: 4px 3px; }
+  .day-number { margin-bottom: 5px; }
+}
+
+#monthList {
+  display: grid;
+  gap: 30px;
+}
+
+.month-section {
+  scroll-margin-top: 16px;
+}
+
+.month-heading {
+  font-size: 20px;
+  margin: 0 0 14px;
+}
+
+.month-section .day {
+  min-height: 88px;
+}
+
+#dayDialog {
+  max-height: 85dvh;
+  overflow-y: auto;
+}
+
+.dialog-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.dialog-heading h2 {
+  margin: 7px 0 0;
+}
+
+#notes {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.add-button {
+  width: 100%;
+  padding: 13px;
+}
+
+@media (max-width: 480px) {
+  .month-section .day {
+    min-height: 72px;
+  }
+
+  #monthList {
+    gap: 24px;
+  }
+}
+</style>
+</head>
+<body>
+<main class="app">
+  <header>
+    <div>
+      <div class="eyebrow">MY LITTLE JOURNAL ♡</div>
+      <h1>Little Calendar</h1>
+      <div class="subtitle">little things matter every day ✿</div>
+    </div>
+    <button id="goToday">Today ♡</button>
+  </header>
+
+  <div id="monthList"></div>
+
+  <footer>made with ♡ · your little offline space</footer>
+
+  <dialog id="dayDialog">
+    <div class="dialog-heading">
+      <div>
+        <div class="eyebrow">A LITTLE MEMORY ♡</div>
+        <h2 id="selectedTitle">Tanggal</h2>
+      </div>
+      <button id="closeDay" class="secondary">✕</button>
+    </div>
+    <div id="notes"></div>
+    <button id="addNote" class="add-button">+ Tambah catatan</button>
+  </dialog>
+
+  <dialog id="editor">
+    <form id="noteForm">
+      <h2 id="formTitle">Catatan baru ♡</h2>
+      <label for="noteTitle">Kata kunci / judul</label>
+      <input id="noteTitle" maxlength="80" placeholder="Contoh: Coffee time">
+      <label for="noteBody">Catatan</label>
+      <textarea id="noteBody" placeholder="Tulis apa saja di sini..."></textarea>
+      <div class="form-actions">
+        <button type="button" class="secondary" id="cancel">Batal</button>
+        <button type="submit">Simpan ♡</button>
+      </div>
+    </form>
+  </dialog>
+  <footer>made with ♡ · your little offline space</footer>
+</main>
+
+<!-- <dialog id="editor">
+  <form id="noteForm">
+    <h2 id="formTitle">Catatan baru ♡</h2>
+    <label for="noteTitle">Kata kunci / judul</label>
+    <input id="noteTitle" maxlength="80" placeholder="Contoh: Coffee time">
+    <label for="noteBody">Catatan</label>
+    <textarea id="noteBody" placeholder="Tulis apa saja di sini..."></textarea>
+    <div class="form-actions">
+      <button type="button" class="secondary" id="cancel">Batal</button>
+      <button type="submit">Simpan ♡</button>
+    </div>
+  </form>
+</dialog> -->
+
+<script>
+const $ = id => document.getElementById(id);
+
+const monthNames = [
+  "Januari", "Februari", "Maret", "April", "Mei", "Juni",
+  "Juli", "Agustus", "September", "Oktober", "November", "Desember"
+];
+
+const dayNames = [
+  "Minggu", "Senin", "Selasa", "Rabu",
+  "Kamis", "Jumat", "Sabtu"
+];
+
+const colors = ["pink", "green", "yellow", "purple", "blue"];
+const today = new Date();
+const todayKey = dateKey(today);
+
+let selectedDate = todayKey;
+let editingId = null;
+let notes = loadNotes();
+
+function dateKey(date) {
+  return `${date.getFullYear()}-${String(date.getMonth()+1).padStart(2,"0")}-${String(date.getDate()).padStart(2,"0")}`;
+}
+
+function loadNotes() {
+  try {
+    return JSON.parse(localStorage.getItem("little-calendar-notes") || "{}");
+  } catch {
+    return {};
+  }
+}
+
+function saveNotes() {
+  localStorage.setItem("little-calendar-notes", JSON.stringify(notes));
+}
+
+function dateLabel(key) {
+  const [y,m,d] = key.split("-").map(Number);
+  return `${dayNames[new Date(y,m-1,d).getDay()]}, ${d} ${monthNames[m-1]} ${y}`;
+}
+
+function createMonth(year, month) {
+  const section = document.createElement("section");
+  section.className = "month-section";
+  section.id = `month-${year}-${month}`;
+
+  const heading = document.createElement("h2");
+  heading.className = "month-heading";
+  heading.textContent = `${monthNames[month]} ${year}`;
+  section.appendChild(heading);
+
+  const weekdays = document.createElement("div");
+  weekdays.className = "weekdays";
+
+  ["MIN","SEN","SEL","RAB","KAM","JUM","SAB"].forEach(day => {
+    const el = document.createElement("div");
+    el.textContent = day;
+    weekdays.appendChild(el);
+  });
+
+  section.appendChild(weekdays);
+
+  const grid = document.createElement("div");
+  grid.className = "calendar";
+
+  const firstDay = new Date(year, month, 1).getDay();
+  const totalDays = new Date(year, month + 1, 0).getDate();
+
+  for (let i = 0; i < firstDay; i++) {
+    const blank = document.createElement("div");
+    blank.className = "day empty";
+    grid.appendChild(blank);
+  }
+
+  for (let day = 1; day <= totalDays; day++) {
+    const key = `${year}-${String(month+1).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
+    const cell = document.createElement("button");
+    cell.className = "day";
+
+    if (key === todayKey) cell.classList.add("today");
+
+    const number = document.createElement("span");
+    number.className = "day-number";
+    number.textContent = day;
+    cell.appendChild(number);
+
+    const chipArea = document.createElement("span");
+    chipArea.className = "chips";
+
+    const dayNotes = notes[key] || [];
+
+    dayNotes.slice(0, 3).forEach((note, index) => {
+      const chip = document.createElement("span");
+      chip.className = `chip ${colors[index % colors.length]}`;
+      chip.textContent = note.title.trim() || "Catatan";
+      chipArea.appendChild(chip);
+    });
+
+    if (dayNotes.length > 3) {
+      const more = document.createElement("span");
+      more.className = "more";
+      more.textContent = `+${dayNotes.length - 3} lagi`;
+      chipArea.appendChild(more);
+    }
+
+    cell.appendChild(chipArea);
+    cell.addEventListener("click", () => openDay(key));
+    grid.appendChild(cell);
+  }
+
+  section.appendChild(grid);
+  return section;
+}
+
+function renderMonths() {
+  const container = $("monthList");
+  container.replaceChildren();
+
+  // Tampilkan 12 bulan sebelumnya, bulan sekarang,
+  // dan 12 bulan berikutnya.
+  for (let offset = -12; offset <= 12; offset++) {
+    const date = new Date(
+      today.getFullYear(),
+      today.getMonth() + offset,
+      1
+    );
+
+    container.appendChild(
+      createMonth(date.getFullYear(), date.getMonth())
+    );
+  }
+
+  // Mulai dari bulan sekarang saat aplikasi dibuka.
+  requestAnimationFrame(() => {
+    document.getElementById(
+      `month-${today.getFullYear()}-${today.getMonth()}`
+    )?.scrollIntoView({ block: "start" });
+  });
+}
+
+function openDay(key) {
+  selectedDate = key;
+  renderNotes();
+  $("dayDialog").showModal();
+}
+
+function renderNotes() {
+  $("selectedTitle").textContent = dateLabel(selectedDate);
+
+  const container = $("notes");
+  container.replaceChildren();
+
+  const dayNotes = notes[selectedDate] || [];
+
+  if (!dayNotes.length) {
+    const empty = document.createElement("p");
+    empty.className = "empty-message";
+    empty.textContent = "Belum ada catatan untuk hari ini ♡";
+    container.appendChild(empty);
+    return;
+  }
+
+  dayNotes.forEach(note => {
+    const card = document.createElement("article");
+    card.className = "note";
+
+    const top = document.createElement("div");
+    top.className = "note-top";
+
+    const title = document.createElement("div");
+    title.className = "note-title";
+    title.textContent = note.title || "Catatan tanpa judul";
+
+    const actions = document.createElement("div");
+    actions.className = "actions";
+
+    const edit = document.createElement("button");
+    edit.className = "secondary";
+    edit.textContent = "Edit";
+    edit.addEventListener("click", () => openEditor(note.id));
+
+    const del = document.createElement("button");
+    del.className = "secondary";
+    del.textContent = "Hapus";
+    del.addEventListener("click", () => deleteNote(note.id));
+
+    actions.append(edit, del);
+    top.append(title, actions);
+
+    const body = document.createElement("div");
+    body.className = "note-content";
+    body.textContent = note.body || "";
+
+    card.append(top, body);
+    container.appendChild(card);
+  });
+}
+
+function refreshCalendar() {
+  const container = $("monthList");
+  const oldSections = [...container.children];
+
+  oldSections.forEach(section => {
+    const [year, month] = section.id
+      .replace("month-", "").split("-").map(Number);
+
+    const replacement = createMonth(year, month);
+    section.replaceWith(replacement);
+  });
+}
+
+function openEditor(id = null) {
+  editingId = id;
+
+  const note = id
+    ? (notes[selectedDate] || []).find(n => n.id === id)
+    : null;
+
+  $("formTitle").textContent = note
+    ? "Edit catatan ♡"
+    : "Catatan baru ♡";
+
+  $("noteTitle").value = note?.title || "";
+  $("noteBody").value = note?.body || "";
+
+  $("editor").showModal();
+  $("noteTitle").focus();
+}
+
+function deleteNote(id) {
+  if (!confirm("Hapus catatan ini?")) return;
+
+  notes[selectedDate] =
+    (notes[selectedDate] || []).filter(n => n.id !== id);
+
+  if (!notes[selectedDate].length) {
+    delete notes[selectedDate];
+  }
+
+  saveNotes();
+  refreshCalendar();
+  renderNotes();
+}
+
+$("noteForm").addEventListener("submit", event => {
+  event.preventDefault();
+
+  const title = $("noteTitle").value.trim();
+  const body = $("noteBody").value.trim();
+
+  if (!title && !body) {
+    alert("Tulis judul atau isi catatan dulu ya ♡");
+    return;
+  }
+
+  if (!notes[selectedDate]) notes[selectedDate] = [];
+
+  if (editingId) {
+    const note = notes[selectedDate].find(n => n.id === editingId);
+    if (note) Object.assign(note, { title, body });
+  } else {
+    notes[selectedDate].push({
+      id: `${Date.now()}-${Math.random().toString(16).slice(2)}`,
+      title,
+      body
+    });
+  }
+
+  saveNotes();
+  $("editor").close();
+  refreshCalendar();
+  renderNotes();
+});
+
+$("addNote").addEventListener("click", () => openEditor());
+
+$("cancel").addEventListener("click", () => {
+  $("editor").close();
+});
+
+$("closeDay").addEventListener("click", () => {
+  $("dayDialog").close();
+});
+
+$("goToday").addEventListener("click", () => {
+  document.getElementById(
+    `month-${today.getFullYear()}-${today.getMonth()}`
+  )?.scrollIntoView({ behavior: "smooth", block: "start" });
+});
+
+renderMonths();
+</script>
+</body>
+</html>
