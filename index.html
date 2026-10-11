@@ -166,7 +166,7 @@ textarea { min-height: 150px; resize: vertical; line-height: 1.6; }
 }
 
 .month-section {
-  scroll-margin-top: 16px;
+  scroll-margin-top: 80px;
 }
 
 .month-heading {
@@ -597,7 +597,10 @@ $("closeDay").addEventListener("click", () => {
 $("goToday").addEventListener("click", () => {
   document.getElementById(
     `month-${today.getFullYear()}-${today.getMonth()}`
-  )?.scrollIntoView({ behavior: "smooth", block: "start" });
+  )?.scrollIntoView({
+    behavior: "smooth",
+    block: "start"
+  });
 });
 
 renderMonths();
